@@ -1,4 +1,4 @@
-#lavender's dotfiles
+# lavender's dotfiles
 
 now nothing here
 
