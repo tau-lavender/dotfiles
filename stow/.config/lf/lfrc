@@ -1,0 +1,197 @@
+## SETTINGS
+# bla bla boring
+set shell sh
+
+set shellopts '-eu'
+set ifs "\n"
+set cursorpreviewfmt "\033[7;2m"
+
+set incsearch
+set incfilter
+
+## ACTUAL SETTINGS
+# previwer
+# set sixel true
+set previewer ~/.config/lf/previewer
+
+# visual
+set scrolloff 10
+set drawbox true
+
+## CUSTOM COMMANDS
+# basic
+cmd mkdir %{{
+  printf "Directory Name: "
+  read ans
+  mkdir $ans
+}}
+
+cmd mkfile %{{
+  printf "File Name: "
+  read ans
+  touch $ans
+  # $EDITOR $ans
+}}
+
+# trash
+cmd trash %{{
+  files=$(printf "$fx" | tr '\n' ';')
+  while [ "$files" ]; do
+    file=${files%%;*}
+
+    trash-put "$(basename "$file")"
+
+    if [ "$files" = "$file" ]; then
+      files=''
+    else
+      files="${files#*;}"
+    fi
+  done
+}}
+
+cmd restore ${{
+  trash-restore
+}}
+
+# dragon
+cmd dragon %dragon-drop -a -x $fx
+cmd dragon-stay %dragon-drop -a $fx
+cmd dragon-individual %dragon-drop $fx
+cmd cpdragon %cpdragon
+cmd mvdragon %mvdragon
+cmd dlfile %dlfile
+
+# archive
+cmd extract ${{
+    set -f
+    case $f in
+        *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf $f;;
+        *.tar.gz|*.tgz) tar xzvf $f;;
+        *.tar.xz|*.txz) tar xJvf $f;;
+        *.zip) unzip $f;;
+        *.rar) unrar x $f;;
+        *.7z) 7z x $f;;
+    esac
+}}
+
+cmd zip %zip -r "$f" "$f"
+cmd tar %tar cvf "$f.tar" "$f"
+cmd targz %tar cvzf "$f.tar.gz" "$f"
+cmd tarbz2 %tar cjvf "$f.tar.bz2" "$f"
+
+cmd open &{{
+    case $(file --mime-type -Lb $f) in
+        text/*) lf -remote "send $id \$$EDITOR \$fx";;
+        *) for f in $fx; do $OPENER $f > /dev/null 2> /dev/null & done;;
+    esac
+}}
+
+# TODO: broot kinda sucks, maybe research it later?
+# cmd broot_jump ${{
+#   f=$(mktemp)
+#   res="$(broot --outcmd $f && cat $f | sed 's/cd //')"
+#   rm -f "$f"
+#   if [ -f "$res" ]; then
+#     cmd="select"
+#   elif [ -d "$res" ]; then
+#     cmd="cd"
+#   fi
+#   lf -remote "send $id $cmd \"$res\""
+# }}
+
+cmd copy_to_clipboard &{{
+    printf '%s' "$f" | wl-copy
+}}
+
+
+## REMAPS
+map <enter> shell
+
+# show the result of execution of previous commands
+map ` !true
+
+# dedicated keys for file opener actions
+map o &mimeopen $f
+map O $mimeopen --ask $f
+
+# remove defaults
+map o
+map d
+map c
+map e
+
+# basics
+map . set hidden!
+
+map p paste
+map x cut
+map y copy
+map r rename
+map C clear
+
+map H top
+map L bottom
+map R reload
+
+
+map cf mkfile
+map cd mkdir
+map ch chmod
+map cs :set info size; calcdirsize
+
+map az zip
+map at tar
+map ag targz
+map ab tarbz2
+map ae extract
+
+map dr dragon
+map ds dragon-stay
+map di dragon-individual
+map dm mvdragon
+map dc cpdragon
+map dl dlfile
+
+map f broot_jump
+
+map <c-c> copy_to_clipboard
+
+map '/' :setfilter; filter
+map '<esc>' setfilter
+
+## QUICK GOTO
+map gtr cd ~/.trash
+map gm cd ~/music
+map gd cd ~/downloads
+map gD cd ~/documents
+map ge cd ~/desktop
+map g. cd ~/dotfiles
+
+map gi. cd ~/pictures
+map giw cd ~/pictures/wallpapers
+map gis cd ~/pictures/screenshots
+
+map gv cd ~/videos
+
+map gp cd ~/projects
+map gu cd ~/documents/uni
+
+map gni cd ~/.local/share/nicotine/downloads
+
+map gf cd  /run/media/lavender
+
+
+cmd quit_cd ${{
+    tmp="/tmp/LF_LAST_DIR_PATH"
+    echo "$PWD" > $tmp
+    lf -remote "send $id quit"
+}}
+
+cmd quit_no_cd ${{
+    tmp="/tmp/LF_LAST_DIR_PATH"
+    rm -f "$tmp"
+    lf -remote "send $id quit"
+}}
+
+map Q quit_cd
+map q quit_no_cd
