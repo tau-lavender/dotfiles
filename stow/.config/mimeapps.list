@@ -4,3 +4,5 @@ image/png=feh.desktop
 image/jpeg=feh.desktop
 
 application/pdf=librewolf.desktop
+x-scheme-handler/http=librewolf.desktop
+x-scheme-handler/https=librewolf.desktop

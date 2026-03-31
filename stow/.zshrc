@@ -1,4 +1,5 @@
 export EDITOR=nvim
+export VISUAL=nvim
 
 PROMPT="%B%F{magenta}%n%f%b %~> "
 HISTFILE=~/.histfile
