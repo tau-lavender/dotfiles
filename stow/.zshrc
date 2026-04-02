@@ -1,7 +1,8 @@
 export EDITOR=nvim
 export VISUAL=nvim
 
-PROMPT="%B%F{magenta}%n%f%b %~> "
+# PROMPT="%B%F{magenta}%n%f%b %~> "
+PROMPT="%B%F{magenta}%n%f%b@%m %~> "
 HISTFILE=~/.histfile
 HISTSIZE=1000
 SAVEHIST=1000
@@ -35,3 +36,11 @@ autoload -Uz compinit
 compinit
 
 eval $(thefuck --alias)
+
+
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    ssh-agent -t 1h > "$XDG_RUNTIME_DIR/ssh-agent.env"
+fi
+if [ ! -f "$SSH_AUTH_SOCK" ]; then
+    source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
+fi
